@@ -1,0 +1,1227 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Things We Normalize</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --pink-100: #fff0f3;
+    --pink-200: #ffd6e0;
+    --pink-300: #ffb3c6;
+    --pink-400: #ff85a1;
+    --pink-500: #e8698a;
+    --rose: #d4617e;
+    --blush: #f4a7b9;
+    --peach: #fde8d8;
+    --cream: #fdf6f0;
+    --white: #ffffff;
+    --text-dark: #3d2632;
+    --text-mid: #7a4a5a;
+    --text-soft: #b08090;
+    --glow: rgba(232, 105, 138, 0.3);
+    --glass: rgba(255, 255, 255, 0.55);
+    --glass-border: rgba(255, 182, 193, 0.4);
+    --mood: 1;
+  }
+
+  html { scroll-behavior: smooth; font-size: 16px; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--text-dark);
+    overflow-x: hidden;
+    transition: background 1.5s ease, filter 1.5s ease;
+  }
+
+  body.negative-mood { filter: saturate(0.6) brightness(0.97); }
+  body.positive-mood { filter: saturate(1.2) brightness(1.02); }
+
+  /* LOADING SCREEN */
+  #loading {
+    position: fixed; inset: 0; z-index: 9999;
+    background: linear-gradient(135deg, #ffe4ec 0%, #fdf0f5 50%, #fff5ee 100%);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    transition: opacity 0.8s ease, visibility 0.8s ease;
+  }
+  #loading.hidden { opacity: 0; visibility: hidden; }
+  .loading-petal {
+    width: 60px; height: 60px; margin-bottom: 24px;
+    animation: petalSpin 1.5s ease-in-out infinite;
+  }
+  .loading-petal svg { width: 100%; height: 100%; }
+  @keyframes petalSpin {
+    0% { transform: rotate(0deg) scale(1); }
+    50% { transform: rotate(180deg) scale(1.1); }
+    100% { transform: rotate(360deg) scale(1); }
+  }
+  .loading-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.1rem; color: var(--text-mid);
+    letter-spacing: 0.15em; text-transform: uppercase;
+    animation: pulse 1.5s ease infinite;
+  }
+  @keyframes pulse { 0%,100% { opacity:0.5; } 50% { opacity:1; } }
+
+  /* BLOBS */
+  .blob-container { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+  .blob {
+    position: absolute; border-radius: 50%;
+    filter: blur(80px); opacity: 0.35;
+    animation: blobDrift linear infinite;
+    transition: opacity 2s ease;
+  }
+  .blob-1 { width:500px;height:500px; background:radial-gradient(circle,#ffb3c6,#ffd6e0); top:-100px;left:-100px; animation-duration:25s; }
+  .blob-2 { width:400px;height:400px; background:radial-gradient(circle,#fde8d8,#ffd6e0); top:30%;right:-80px; animation-duration:20s; animation-delay:-8s; }
+  .blob-3 { width:350px;height:350px; background:radial-gradient(circle,#ffe4ec,#ffb3c6); bottom:-50px;left:20%; animation-duration:30s; animation-delay:-15s; }
+  @keyframes blobDrift {
+    0%,100% { transform: translate(0,0) scale(1); }
+    33% { transform: translate(30px,-40px) scale(1.05); }
+    66% { transform: translate(-20px,30px) scale(0.95); }
+  }
+
+  /* PARTICLES */
+  #particles { position: fixed; inset: 0; pointer-events: none; z-index: 1; }
+  .particle {
+    position: absolute; border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,179,198,0.8), transparent);
+    animation: particleFloat linear infinite;
+    transition: opacity 2s ease;
+  }
+  @keyframes particleFloat {
+    0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 0.5; }
+    100% { transform: translateY(-20px) rotate(360deg); opacity: 0; }
+  }
+
+  /* PROGRESS INDICATOR */
+  #progress-indicator {
+    position: fixed; top: 20px; right: 20px; z-index: 1000;
+    background: var(--glass); backdrop-filter: blur(16px);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px; padding: 10px 18px;
+    box-shadow: 0 4px 24px var(--glow);
+    transition: all 0.5s ease;
+    opacity: 0; transform: translateY(-10px);
+  }
+  #progress-indicator.visible { opacity: 1; transform: translateY(0); }
+  .progress-label {
+    font-size: 0.7rem; color: var(--text-soft);
+    letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 4px;
+  }
+  .progress-count {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem; color: var(--rose);
+    text-align: center;
+  }
+  .progress-bar-mini {
+    width: 100%; height: 3px;
+    background: rgba(212,97,126,0.15);
+    border-radius: 2px; margin-top: 6px; overflow: hidden;
+  }
+  .progress-bar-mini-fill {
+    height: 100%; background: linear-gradient(90deg, var(--blush), var(--rose));
+    border-radius: 2px; transition: width 0.8s cubic-bezier(0.34,1.56,0.64,1);
+    width: 0%;
+  }
+
+  /* HERO */
+  #hero {
+    position: relative; min-height: 100vh;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; z-index: 2; padding: 2rem;
+    overflow: hidden;
+  }
+  .hero-bg {
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, #fff0f5 0%, #fde8d8 40%, #ffe8f0 70%, #f8f0ff 100%);
+    animation: heroBgShift 12s ease infinite alternate;
+  }
+  @keyframes heroBgShift {
+    0% { background: linear-gradient(135deg, #fff0f5 0%, #fde8d8 40%, #ffe8f0 70%, #f8f0ff 100%); }
+    100% { background: linear-gradient(225deg, #fde8d8 0%, #ffe4ec 40%, #fff0f5 70%, #ffd6e0 100%); }
+  }
+  .hero-content { position: relative; z-index: 2; max-width: 700px; }
+  .hero-eyebrow {
+    font-size: 0.75rem; letter-spacing: 0.3em; text-transform: uppercase;
+    color: var(--rose); margin-bottom: 1.5rem;
+    animation: fadeUp 1s ease 0.3s both;
+  }
+  .hero-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(3rem, 8vw, 6rem);
+    font-weight: 700; line-height: 1.05;
+    color: var(--text-dark);
+    margin-bottom: 1.5rem;
+    animation: fadeUp 1s ease 0.5s both;
+  }
+  .hero-title em { font-style: italic; color: var(--rose); }
+  .hero-subtitle {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+    color: var(--text-mid); font-weight: 300;
+    line-height: 1.6; margin-bottom: 3rem;
+    animation: fadeUp 1s ease 0.7s both;
+  }
+  .hero-btn {
+    display: inline-block; padding: 16px 40px;
+    background: linear-gradient(135deg, var(--pink-400), var(--rose));
+    color: white; border: none; border-radius: 50px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem; letter-spacing: 0.08em;
+    text-transform: uppercase; cursor: pointer;
+    box-shadow: 0 8px 32px rgba(212,97,126,0.35);
+    transition: all 0.3s ease;
+    animation: fadeUp 1s ease 0.9s both;
+    text-decoration: none;
+  }
+  .hero-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 16px 48px rgba(212,97,126,0.5);
+  }
+  .scroll-indicator {
+    position: absolute; bottom: 2rem; left: 50%;
+    transform: translateX(-50%);
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    animation: fadeUp 1s ease 1.2s both;
+    color: var(--text-soft); font-size: 0.7rem;
+    letter-spacing: 0.15em; text-transform: uppercase;
+  }
+  .scroll-line {
+    width: 1px; height: 40px;
+    background: linear-gradient(to bottom, var(--rose), transparent);
+    animation: scrollBounce 2s ease infinite;
+  }
+  @keyframes scrollBounce { 0%,100% { opacity:0.3; } 50% { opacity:1; } }
+  @keyframes fadeUp { from { opacity:0; transform:translateY(30px); } to { opacity:1; transform:translateY(0); } }
+
+  /* EXPLORE SECTION */
+  #explore {
+    position: relative; z-index: 2;
+    padding: 6rem 2rem;
+  }
+  .section-header { text-align: center; margin-bottom: 4rem; }
+  .section-eyebrow {
+    font-size: 0.7rem; letter-spacing: 0.3em; text-transform: uppercase;
+    color: var(--rose); margin-bottom: 1rem;
+  }
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 4vw, 3rem);
+    color: var(--text-dark); line-height: 1.2;
+  }
+  .section-sub {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.15rem; color: var(--text-soft);
+    margin-top: 0.75rem; font-style: italic;
+  }
+
+  /* MASONRY GRID */
+  .masonry-grid {
+    columns: 3 320px; gap: 20px;
+    max-width: 1200px; margin: 0 auto;
+  }
+  .card-wrap { break-inside: avoid; margin-bottom: 20px; }
+
+  /* CARDS */
+  .card {
+    position: relative; border-radius: 24px; overflow: hidden;
+    cursor: pointer;
+    background: var(--glass); backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 4px 24px rgba(212,97,126,0.1);
+    transition: all 0.4s cubic-bezier(0.34,1.56,0.64,1);
+    animation: cardReveal 0.8s ease both;
+  }
+  .card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 20px 60px rgba(212,97,126,0.25);
+    border-color: rgba(255,133,161,0.5);
+  }
+  .card.completed::after {
+    content: '✓'; position: absolute; top: 12px; right: 12px;
+    width: 28px; height: 28px;
+    background: linear-gradient(135deg, var(--blush), var(--rose));
+    color: white; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.75rem; font-weight: 700;
+    box-shadow: 0 4px 12px rgba(212,97,126,0.4);
+  }
+  @keyframes cardReveal { from { opacity:0; transform:translateY(40px); } to { opacity:1; transform:translateY(0); } }
+
+  .card-visual {
+    width: 100%; aspect-ratio: 4/3;
+    display: flex; align-items: center; justify-content: center;
+    position: relative; overflow: hidden;
+    font-size: 3.5rem;
+    transition: all 0.6s ease;
+  }
+  .card-visual-bg {
+    position: absolute; inset: 0;
+    transition: all 0.6s ease;
+  }
+  .card-emoji { position: relative; z-index: 1; animation: emojiFloat 4s ease infinite; }
+  @keyframes emojiFloat { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-8px); } }
+
+  .card-body { padding: 1.5rem; }
+  .card-tag {
+    font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--rose); margin-bottom: 0.5rem;
+  }
+  .card-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.15rem; color: var(--text-dark);
+    line-height: 1.3; margin-bottom: 0.5rem;
+  }
+  .card-desc { font-size: 0.8rem; color: var(--text-soft); line-height: 1.5; }
+  .card-cta {
+    display: inline-flex; align-items: center; gap: 6px;
+    margin-top: 1rem; font-size: 0.75rem;
+    color: var(--rose); letter-spacing: 0.05em;
+    font-weight: 500;
+  }
+  .card-cta-arrow { transition: transform 0.3s ease; }
+  .card:hover .card-cta-arrow { transform: translateX(4px); }
+
+  /* MODAL */
+  #modal-overlay {
+    position: fixed; inset: 0; z-index: 500;
+    background: rgba(61,38,50,0.5);
+    backdrop-filter: blur(20px);
+    opacity: 0; visibility: hidden;
+    transition: all 0.4s ease;
+    display: flex; align-items: center; justify-content: center;
+    padding: 1rem;
+  }
+  #modal-overlay.active { opacity: 1; visibility: visible; }
+
+  .modal {
+    background: linear-gradient(135deg, rgba(255,240,245,0.97), rgba(253,230,218,0.97));
+    border: 1px solid var(--glass-border);
+    border-radius: 32px;
+    max-width: 600px; width: 100%;
+    max-height: 90vh; overflow-y: auto;
+    box-shadow: 0 32px 80px rgba(212,97,126,0.25);
+    transform: scale(0.9) translateY(30px);
+    transition: all 0.4s cubic-bezier(0.34,1.56,0.64,1);
+    padding: 2.5rem;
+    scrollbar-width: thin; scrollbar-color: var(--blush) transparent;
+  }
+  #modal-overlay.active .modal { transform: scale(1) translateY(0); }
+
+  .modal-close {
+    position: absolute; top: 1.5rem; right: 1.5rem;
+    width: 36px; height: 36px; border-radius: 50%;
+    background: var(--glass); border: 1px solid var(--glass-border);
+    color: var(--text-mid); font-size: 1.2rem;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: all 0.3s ease;
+  }
+  .modal-close:hover { background: var(--pink-200); transform: rotate(90deg); }
+
+  .modal-header { position: relative; margin-bottom: 2rem; }
+  .modal-emoji { font-size: 3rem; margin-bottom: 0.75rem; }
+  .modal-tag {
+    font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--rose); margin-bottom: 0.5rem;
+  }
+  .modal-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.4rem, 4vw, 2rem);
+    color: var(--text-dark); line-height: 1.2;
+  }
+
+  .modal-scene {
+    background: var(--glass); backdrop-filter: blur(8px);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px; padding: 1.5rem;
+    margin-bottom: 1.5rem; text-align: center;
+    min-height: 160px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    transition: all 0.8s ease; position: relative; overflow: hidden;
+  }
+  .scene-visual { font-size: 2.5rem; margin-bottom: 1rem; transition: all 0.5s ease; }
+  .scene-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.1rem; color: var(--text-mid);
+    font-style: italic; line-height: 1.5;
+  }
+
+  .modal-situation {
+    margin-bottom: 1.5rem;
+    background: rgba(255,255,255,0.5);
+    border-radius: 16px; padding: 1rem 1.25rem;
+    border-left: 3px solid var(--blush);
+  }
+  .situation-label {
+    font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--text-soft); margin-bottom: 0.5rem;
+  }
+  .situation-text { font-size: 0.95rem; color: var(--text-dark); line-height: 1.6; }
+
+  .choices-grid {
+    display: flex; flex-direction: column; gap: 10px;
+    margin-bottom: 1.5rem;
+  }
+  .choice-btn {
+    padding: 14px 20px; border-radius: 14px;
+    border: 1.5px solid var(--glass-border);
+    background: rgba(255,255,255,0.7);
+    color: var(--text-dark); font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem; cursor: pointer;
+    text-align: left;
+    transition: all 0.3s ease;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .choice-btn:hover {
+    background: rgba(255,179,198,0.2);
+    border-color: var(--blush);
+    transform: translateX(4px);
+  }
+  .choice-btn.selected-positive {
+    background: linear-gradient(135deg, rgba(255,179,198,0.3), rgba(255,133,161,0.2));
+    border-color: var(--pink-400);
+    color: var(--rose);
+  }
+  .choice-btn.selected-negative {
+    background: rgba(150,130,140,0.15);
+    border-color: rgba(150,130,140,0.3);
+    color: var(--text-mid);
+  }
+
+  .feedback-box {
+    border-radius: 16px; padding: 1.25rem 1.5rem;
+    display: none; opacity: 0;
+    transition: all 0.5s ease;
+    margin-bottom: 1rem;
+  }
+  .feedback-box.show { display: block; opacity: 1; }
+  .feedback-box.positive {
+    background: linear-gradient(135deg, rgba(255,179,198,0.25), rgba(255,220,230,0.3));
+    border: 1px solid rgba(255,133,161,0.3);
+  }
+  .feedback-box.negative {
+    background: rgba(200,180,190,0.15);
+    border: 1px solid rgba(180,160,170,0.25);
+  }
+  .feedback-icon { font-size: 1.5rem; margin-bottom: 0.5rem; }
+  .feedback-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1rem; font-style: italic;
+    color: var(--text-dark); line-height: 1.5;
+    margin-bottom: 0.5rem;
+  }
+  .feedback-sub { font-size: 0.8rem; color: var(--text-soft); line-height: 1.5; }
+
+  .modal-next-btn {
+    width: 100%; padding: 14px;
+    background: linear-gradient(135deg, var(--pink-400), var(--rose));
+    color: white; border: none; border-radius: 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem; letter-spacing: 0.05em;
+    cursor: pointer; display: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 16px rgba(212,97,126,0.3);
+  }
+  .modal-next-btn.show { display: block; }
+  .modal-next-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(212,97,126,0.45); }
+
+  /* ENDING SECTION */
+  #ending {
+    position: relative; z-index: 2;
+    padding: 8rem 2rem;
+    opacity: 0; pointer-events: none;
+    transform: translateY(60px);
+    transition: all 1.5s cubic-bezier(0.34,1.2,0.64,1);
+    text-align: center;
+  }
+  #ending.revealed { opacity: 1; pointer-events: all; transform: translateY(0); }
+
+  .ending-intro {
+    max-width: 600px; margin: 0 auto 4rem;
+  }
+  .ending-eyebrow {
+    font-size: 0.7rem; letter-spacing: 0.3em; text-transform: uppercase;
+    color: var(--rose); margin-bottom: 1rem;
+    animation: shimmer 3s ease infinite;
+  }
+  @keyframes shimmer { 0%,100%{opacity:0.7;} 50%{opacity:1;} }
+  .ending-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    color: var(--text-dark); line-height: 1.3;
+    margin-bottom: 1.5rem;
+  }
+  .ending-title em { font-style: italic; color: var(--rose); }
+  .ending-sub {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.2rem; color: var(--text-mid);
+    font-style: italic; line-height: 1.7;
+  }
+
+  .values-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 16px; max-width: 900px; margin: 0 auto 4rem;
+  }
+  .value-card {
+    background: var(--glass); backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+    border-radius: 24px; padding: 2rem 1.25rem;
+    box-shadow: 0 8px 32px var(--glow);
+    transition: all 0.4s ease;
+  }
+  .value-card:hover { transform: translateY(-6px); }
+  .value-icon { font-size: 2rem; margin-bottom: 1rem; }
+  .value-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 0.95rem; color: var(--text-dark);
+    margin-bottom: 0.75rem;
+  }
+  .value-bar-wrap {
+    width: 100%; height: 4px;
+    background: rgba(212,97,126,0.12);
+    border-radius: 2px; overflow: hidden;
+  }
+  .value-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--blush), var(--rose));
+    border-radius: 2px; width: 0%;
+    transition: width 1.5s cubic-bezier(0.34,1.2,0.64,1);
+  }
+  .value-pct {
+    font-size: 0.7rem; color: var(--rose);
+    margin-top: 6px; font-weight: 500;
+  }
+
+  .ending-quote {
+    max-width: 600px; margin: 0 auto;
+    background: var(--glass); backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+    border-radius: 24px; padding: 2.5rem;
+    box-shadow: 0 8px 40px var(--glow);
+  }
+  .quote-mark { font-size: 3rem; color: var(--blush); line-height: 1; margin-bottom: 0.5rem; }
+  .quote-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.3rem; font-style: italic;
+    color: var(--text-dark); line-height: 1.6;
+    margin-bottom: 1rem;
+  }
+  .quote-author { font-size: 0.75rem; color: var(--text-soft); letter-spacing: 0.1em; }
+
+  /* FOOTER */
+  footer {
+    position: relative; z-index: 2;
+    text-align: center; padding: 3rem 2rem;
+    color: var(--text-soft); font-size: 0.8rem;
+    border-top: 1px solid rgba(255,179,198,0.2);
+  }
+  footer span { color: var(--rose); }
+
+  /* RESPONSIVE */
+  @media (max-width: 600px) {
+    .masonry-grid { columns: 1; }
+    .modal { padding: 1.75rem; }
+    .values-grid { grid-template-columns: repeat(2,1fr); }
+  }
+  @media (max-width: 900px) {
+    .masonry-grid { columns: 2 260px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- LOADING -->
+<div id="loading">
+  <div class="loading-petal">
+    <svg viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="30" cy="15" rx="10" ry="14" fill="#ffb3c6" opacity="0.8" transform="rotate(0 30 30)"/>
+      <ellipse cx="30" cy="15" rx="10" ry="14" fill="#ffd6e0" opacity="0.7" transform="rotate(72 30 30)"/>
+      <ellipse cx="30" cy="15" rx="10" ry="14" fill="#ffb3c6" opacity="0.6" transform="rotate(144 30 30)"/>
+      <ellipse cx="30" cy="15" rx="10" ry="14" fill="#fde8d8" opacity="0.7" transform="rotate(216 30 30)"/>
+      <ellipse cx="30" cy="15" rx="10" ry="14" fill="#ffb3c6" opacity="0.8" transform="rotate(288 30 30)"/>
+      <circle cx="30" cy="30" r="7" fill="#e8698a"/>
+    </svg>
+  </div>
+  <div class="loading-text">Opening petals…</div>
+</div>
+
+<!-- BLOBS -->
+<div class="blob-container">
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+</div>
+
+<!-- PARTICLES -->
+<canvas id="particles"></canvas>
+
+<!-- PROGRESS -->
+<div id="progress-indicator">
+  <div class="progress-label">Explored</div>
+  <div class="progress-count"><span id="progress-num">0</span> / 10</div>
+  <div class="progress-bar-mini"><div class="progress-bar-mini-fill" id="progress-fill"></div></div>
+</div>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-content">
+    <div class="hero-eyebrow">An Interactive Reflection</div>
+    <h1 class="hero-title">Things We <em>Normalize</em></h1>
+    <p class="hero-subtitle">Small habits quietly shape society.<br>Which ones are you carrying?</p>
+    <a href="#explore" class="hero-btn">Start Exploring</a>
+  </div>
+  <div class="scroll-indicator">
+    <span>scroll</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<!-- EXPLORE -->
+<section id="explore">
+  <div class="section-header">
+    <div class="section-eyebrow">10 Stories</div>
+    <h2 class="section-title">What Do We Quietly Accept?</h2>
+    <p class="section-sub">Click any card to step inside the moment.</p>
+  </div>
+  <div class="masonry-grid" id="cards-grid"></div>
+</section>
+
+<!-- ENDING -->
+<section id="ending">
+  <div class="ending-intro">
+    <div class="ending-eyebrow">✦ Reflection Complete ✦</div>
+    <h2 class="ending-title">Thank you for <em>reflecting</em> on the small things we normalize every day.</h2>
+    <p class="ending-sub">Every choice you made here tells a story about who we are — and who we want to become.</p>
+  </div>
+
+  <div class="values-grid" id="values-grid">
+    <div class="value-card">
+      <div class="value-icon">🌸</div>
+      <div class="value-name">Empathy</div>
+      <div class="value-bar-wrap"><div class="value-bar" data-target="88"></div></div>
+      <div class="value-pct">88%</div>
+    </div>
+    <div class="value-card">
+      <div class="value-icon">⚖️</div>
+      <div class="value-name">Responsibility</div>
+      <div class="value-bar-wrap"><div class="value-bar" data-target="82"></div></div>
+      <div class="value-pct">82%</div>
+    </div>
+    <div class="value-card">
+      <div class="value-icon">🤝</div>
+      <div class="value-name">Respect</div>
+      <div class="value-bar-wrap"><div class="value-bar" data-target="91"></div></div>
+      <div class="value-pct">91%</div>
+    </div>
+    <div class="value-card">
+      <div class="value-icon">👁️</div>
+      <div class="value-name">Awareness</div>
+      <div class="value-bar-wrap"><div class="value-bar" data-target="79"></div></div>
+      <div class="value-pct">79%</div>
+    </div>
+    <div class="value-card">
+      <div class="value-icon">🌍</div>
+      <div class="value-name">Social Impact</div>
+      <div class="value-bar-wrap"><div class="value-bar" data-target="85"></div></div>
+      <div class="value-pct">85%</div>
+    </div>
+  </div>
+
+  <div class="ending-quote">
+    <div class="quote-mark">"</div>
+    <p class="quote-text">What we normalize today shapes tomorrow's society.</p>
+    <p class="quote-author">— Things We Normalize</p>
+  </div>
+</section>
+
+<footer>
+  Made with <span>♡</span> · Things We Normalize · A Social Awareness Project
+</footer>
+
+<!-- MODAL -->
+<div id="modal-overlay">
+  <div class="modal" id="modal-content">
+    <button class="modal-close" id="modal-close">✕</button>
+    <div class="modal-header">
+      <div class="modal-emoji" id="m-emoji"></div>
+      <div class="modal-tag" id="m-tag"></div>
+      <h2 class="modal-title" id="m-title"></h2>
+    </div>
+    <div class="modal-scene" id="m-scene">
+      <div class="scene-visual" id="m-scene-visual"></div>
+      <div class="scene-text" id="m-scene-text"></div>
+    </div>
+    <div class="modal-situation">
+      <div class="situation-label">Situasi</div>
+      <div class="situation-text" id="m-situation"></div>
+    </div>
+    <div class="choices-grid" id="m-choices"></div>
+    <div class="feedback-box" id="m-feedback">
+      <div class="feedback-icon" id="m-fb-icon"></div>
+      <div class="feedback-text" id="m-fb-text"></div>
+      <div class="feedback-sub" id="m-fb-sub"></div>
+    </div>
+    <button class="modal-next-btn" id="modal-next">Tandai Selesai & Lanjut →</button>
+  </div>
+</div>
+
+<script>
+// =========================================
+// DATA
+// =========================================
+const CARDS = [
+  {
+    id: 0,
+    tag: "Toleransi Beragama",
+    emoji: "🤝",
+    title: "Respecting Different Beliefs",
+    desc: "Ruang publik milik semua orang.",
+    colors: ["#fff0ec","#fde8d8"],
+    visual: "🕌🛕⛪🕍",
+    situation: "Kamu berada di kantor. Rekan kerjamu berpamitan untuk sholat. Atasanmu bergumam pelan, 'Kok sering izin ya?'",
+    sceneInit: "🏢",
+    sceneInitText: "Suasana kantor yang harmonis...",
+    choices: [
+      { label: "Ikut menghakimi dalam hati", type: "negative", emoji: "😶" },
+      { label: "Diam saja dan pura-pura tidak dengar", type: "neutral", emoji: "🙈" },
+      { label: "Angkat bicara dengan sopan", type: "positive", emoji: "🗣️" }
+    ],
+    positive: {
+      scene: "🌟🤝🌟", sceneText: "Ruang kerja terasa lebih hangat.",
+      icon: "🌸", text: "\"Perbedaan adalah kekayaan, bukan penghalang.\"",
+      sub: "Setiap suara kecil yang berani bicara menciptakan budaya yang lebih inklusif."
+    },
+    negative: {
+      scene: "😶❄️", sceneText: "Keheningan yang dingin menyelimuti ruangan.",
+      icon: "🌧️", text: "\"Diam pun bisa jadi persetujuan diam-diam.\"",
+      sub: "Sikap pasif membiarkan diskriminasi kecil terus tumbuh tanpa disadari."
+    },
+    neutral: {
+      scene: "🙈💭", sceneText: "Sesuatu yang tidak nyaman tergantung di udara.",
+      icon: "⚡", text: "\"Netralitas di tengah ketidakadilan adalah keberpihakan.\"",
+      sub: "Memilih untuk tidak bereaksi pun adalah sebuah pilihan yang berdampak."
+    }
+  },
+  {
+    id: 1,
+    tag: "Identitas Nasional",
+    emoji: "🇮🇩",
+    title: "Mocking Cultures Isn't Humor",
+    desc: "Keragaman bukan bahan lelucon.",
+    colors: ["#fff5e0","#fde8d8"],
+    visual: "🎭🏮🎋🎊",
+    situation: "Di grup chat keluarga, seseorang mengirim meme yang mengejek logat daerah tertentu. Semua tertawa.",
+    sceneInit: "💬",
+    sceneInitText: "Notifikasi grup berdatangan...",
+    choices: [
+      { label: "Ikut tertawa dan kirim stiker", type: "negative", emoji: "😂" },
+      { label: "Keluar dari chat tanpa komentar", type: "neutral", emoji: "🚪" },
+      { label: "Balas dengan lembut tapi jelas", type: "positive", emoji: "💌" }
+    ],
+    positive: {
+      scene: "🌺🇮🇩🌺", sceneText: "Keberagaman terasa indah, bukan lucu.",
+      icon: "🌸", text: "\"Humor terbaik menyatukan, bukan memisahkan.\"",
+      sub: "Merespons dengan bijak membuka ruang untuk percakapan yang lebih matang."
+    },
+    negative: {
+      scene: "😂💢", sceneText: "Tawa yang terasa getir bagi yang dijadikan lelucon.",
+      icon: "🌧️", text: "\"Stereotip yang ditertawakan perlahan menjadi kebenaran.\"",
+      sub: "Humor berbasis identitas memperkuat prasangka tanpa disadari."
+    },
+    neutral: {
+      scene: "🚪💭", sceneText: "Pergi tanpa suara...",
+      icon: "⚡", text: "\"Meninggalkan ruang pun bisa menjadi pesan.\"",
+      sub: "Tapi terkadang pergi diam-diam tidak cukup mengubah percakapan."
+    }
+  },
+  {
+    id: 2,
+    tag: "Kesusilaan",
+    emoji: "🌸",
+    title: "Words Stay Longer Than You Think",
+    desc: "Kata-kata meninggalkan bekas tak kasat mata.",
+    colors: ["#fff0f5","#ffe4ec"],
+    visual: "💬✨📱💕",
+    situation: "Sahabatmu baru saja presentasi. Di depannya kamu bilang 'bagus', tapi di belakang kamu bilang ke teman lain 'biasa aja sih sebenernya'.",
+    sceneInit: "📱",
+    sceneInitText: "Layar ponsel yang ramai...",
+    choices: [
+      { label: "Lanjut cerita di belakang", type: "negative", emoji: "🤫" },
+      { label: "Bilang langsung dengan jujur tapi baik", type: "positive", emoji: "💬" }
+    ],
+    positive: {
+      scene: "💖✨💖", sceneText: "Kejujuran yang hangat mempererat kepercayaan.",
+      icon: "🌸", text: "\"Kata-kata yang jujur dan baik hati adalah hadiah terbesar.\"",
+      sub: "Feedback yang tulus, meski sulit, jauh lebih berharga daripada pujian palsu."
+    },
+    negative: {
+      scene: "🤫💔", sceneText: "Kepercayaan yang retak perlahan...",
+      icon: "🌧️", text: "\"Kata-kata di belakang lebih keras terdengar dari yang di depan.\"",
+      sub: "Gosip kecil membangun dinding yang tidak terlihat tapi terasa nyata."
+    },
+    neutral: null
+  },
+  {
+    id: 3,
+    tag: "Musyawarah Mufakat",
+    emoji: "🗣️",
+    title: "Listening Is Also Important",
+    desc: "Diskusi bukan arena untuk menang.",
+    colors: ["#f0f5ff","#e8f0fe"],
+    visual: "🗣️👥🤔💡",
+    situation: "Rapat kelas sedang memutuskan tema acara. Kamu punya ide kuat, tapi ada temanmu yang terus disela sebelum selesai bicara.",
+    sceneInit: "🗓️",
+    sceneInitText: "Rapat yang riuh...",
+    choices: [
+      { label: "Biarkan saja, yang penting acaramu jalan", type: "negative", emoji: "🤷" },
+      { label: "Minta semua untuk bergiliran bicara", type: "positive", emoji: "✋" }
+    ],
+    positive: {
+      scene: "🌟👥🌟", sceneText: "Setiap suara terdengar, setiap ide dihargai.",
+      icon: "🌸", text: "\"Musyawarah sejati bukan soal siapa yang paling keras suaranya.\"",
+      sub: "Memberi ruang bicara kepada semua menciptakan keputusan yang lebih kaya."
+    },
+    negative: {
+      scene: "🤷❌", sceneText: "Satu suara mendominasi, lainnya teredam.",
+      icon: "🌧️", text: "\"Keputusan terbaik lahir dari mendengar semua, bukan dari yang paling dominan.\"",
+      sub: "Pembiaran membuat suara-suara penting hilang dari percakapan."
+    },
+    neutral: null
+  },
+  {
+    id: 4,
+    tag: "Kesadaran Hukum",
+    emoji: "⚖️",
+    title: "\"Everyone Does It\"",
+    desc: "Normalitas bukan legalitas.",
+    colors: ["#f5f0ff","#ede8fe"],
+    visual: "🚦🛣️👮🚗",
+    situation: "Lampu merah di persimpangan sepi. Motor di depanmu langsung terobos. Temanmu bilang, 'Ayo, sepi kok, nggak ada yang lihat.'",
+    sceneInit: "🚦",
+    sceneInitText: "Persimpangan yang sepi...",
+    choices: [
+      { label: "Ikut terobos karena memang sepi", type: "negative", emoji: "🏍️" },
+      { label: "Tetap berhenti dan tunggu hijau", type: "positive", emoji: "⏸️" }
+    ],
+    positive: {
+      scene: "✅🚦✅", sceneText: "Tertib karena sadar, bukan karena takut dilihat.",
+      icon: "🌸", text: "\"Integritas adalah apa yang kamu lakukan saat tidak ada yang menonton.\"",
+      sub: "Kebiasaan kecil yang baik membentuk karakter yang tidak mudah goyah."
+    },
+    negative: {
+      scene: "🏍️💨❌", sceneText: "Satu orang terobos, sepuluh orang mengikuti.",
+      icon: "🌧️", text: "\"'Semua orang melakukannya' bukan alasan — itu penyebabnya.\"",
+      sub: "Kebiasaan kolektif yang buruk dimulai dari satu orang yang memulainya."
+    },
+    neutral: null
+  },
+  {
+    id: 5,
+    tag: "Anti Korupsi",
+    emoji: "💸",
+    title: "The Easy Shortcut",
+    desc: "Gratifikasi kecil, dampak besar.",
+    colors: ["#fff8e0","#fdf0c8"],
+    visual: "🏛️💼📋💰",
+    situation: "Kamu mengurus dokumen penting. Petugas menyebut bisa 'dibantu cepat' dengan biaya tambahan di luar resmi. Antrian panjang menunggumu.",
+    sceneInit: "🏛️",
+    sceneInitText: "Ruang antrian yang panjang...",
+    choices: [
+      { label: "Bayar saja biar cepat, semua juga begitu", type: "negative", emoji: "💵" },
+      { label: "Tolak dan tempuh jalur resmi", type: "positive", emoji: "📋" }
+    ],
+    positive: {
+      scene: "🌟⚖️🌟", sceneText: "Sistem yang lebih bersih dimulai dari satu orang.",
+      icon: "🌸", text: "\"Setiap 'tidak' untuk korupsi adalah 'ya' untuk keadilan.\"",
+      sub: "Menolak gratifikasi mungkin lambat hari ini, tapi membangun sistem yang lebih baik besok."
+    },
+    negative: {
+      scene: "💵❌🏛️", sceneText: "Sistem yang sakit terus dirawat dengan kebiasaan lama.",
+      icon: "🌧️", text: "\"Minyak yang terus dipompa membuat mesin korupsi tetap berputar.\"",
+      sub: "Setiap pembayaran kecil di luar jalur memperkuat budaya yang merugikan semua."
+    },
+    neutral: null
+  },
+  {
+    id: 6,
+    tag: "KDRT",
+    emoji: "🕊️",
+    title: "Hurt Is Not Love",
+    desc: "Cinta tidak pernah menyakiti.",
+    colors: ["#fff0f5","#fde8f0"],
+    visual: "🏠❤️‍🩹🕊️",
+    situation: "Temanmu bercerita pasangannya sering berteriak dan melempar barang saat marah, tapi dia bilang 'Dia nggak sengaja, dia baik kok sebenarnya.'",
+    sceneInit: "🏠",
+    sceneInitText: "Ruang yang harusnya terasa aman...",
+    choices: [
+      { label: "Bilang 'Namanya juga pasangan, wajar ada konflik'", type: "negative", emoji: "🤷" },
+      { label: "Mendengarkan dan menawarkan bantuan nyata", type: "positive", emoji: "🤗" }
+    ],
+    positive: {
+      scene: "🕊️💖🕊️", sceneText: "Sahabat yang mendengar adalah pelita di kegelapan.",
+      icon: "🌸", text: "\"Cinta sejati tidak meninggalkan luka yang harus disembunyikan.\"",
+      sub: "Mendengarkan tanpa menghakimi dan menawarkan bantuan bisa menyelamatkan nyawa."
+    },
+    negative: {
+      scene: "❄️💔", sceneText: "Normalisasi yang diam-diam memenjarakan.",
+      icon: "🌧️", text: "\"Menyebut kekerasan sebagai 'konflik biasa' adalah tembok yang mengurung korban.\"",
+      sub: "Ketika kita menormalkan, korban merasa tidak ada jalan keluar."
+    },
+    neutral: null
+  },
+  {
+    id: 7,
+    tag: "Kekerasan Sosial",
+    emoji: "🧍",
+    title: "Just a Joke?",
+    desc: "Bercanda pun bisa melukai.",
+    colors: ["#f0fff5","#e0fee8"],
+    visual: "👥💬😟🤝",
+    situation: "Di kelas, sekelompok teman terus-menerus mengejek cara bicara satu orang. Dia tersenyum dipaksakan, tapi matanya tidak.",
+    sceneInit: "🏫",
+    sceneInitText: "Kelas yang penuh gelak tawa...",
+    choices: [
+      { label: "Ikut tertawa supaya tidak dikucilkan", type: "negative", emoji: "😂" },
+      { label: "Diam dan pura-pura tidak tahu", type: "neutral", emoji: "🙈" },
+      { label: "Alihkan topik atau bela dengan cara halus", type: "positive", emoji: "🛡️" }
+    ],
+    positive: {
+      scene: "🛡️🌟🤝", sceneText: "Satu orang yang berani, mengubah segalanya.",
+      icon: "🌸", text: "\"Keberanian sekecil apapun bisa jadi penyelamat.\"",
+      sub: "Bystander yang bertindak adalah perbedaan antara trauma yang terus berlanjut dan yang terhenti."
+    },
+    negative: {
+      scene: "😂💔", sceneText: "Tawa yang menambah luka...",
+      icon: "🌧️", text: "\"Yang tidak diprotes akan dianggap diterima.\"",
+      sub: "Ikut tertawa, meski hanya untuk diterima, adalah kontribusi pada rasa sakit orang lain."
+    },
+    neutral: {
+      scene: "🙈😶", sceneText: "Diam yang sama sakitnya...",
+      icon: "⚡", text: "\"Saksi yang diam pun turut menulis cerita ini.\"",
+      sub: "Ketidakaktifan memberikan sinyal bahwa perilaku itu dapat diterima."
+    }
+  },
+  {
+    id: 8,
+    tag: "Lingkungan Hidup",
+    emoji: "🌱",
+    title: "One Trash Won't Matter?",
+    desc: "Jutaan orang berpikir hal yang sama.",
+    colors: ["#f0fff8","#e8fef0"],
+    visual: "🌿🌸🦋🌳",
+    situation: "Kamu selesai makan di taman yang indah. Tempat sampah cukup jauh. Orang lain sudah banyak yang buang di sekitar bangku.",
+    sceneInit: "🌳",
+    sceneInitText: "Taman yang masih indah pagi ini...",
+    choices: [
+      { label: "Buang di sini saja, udah banyak yang kotor", type: "negative", emoji: "🗑️" },
+      { label: "Simpan dulu, cari tempat sampah yang benar", type: "positive", emoji: "♻️" }
+    ],
+    positive: {
+      scene: "🌸🦋🌿", sceneText: "Taman mekar, udara terasa bersih.",
+      icon: "🌸", text: "\"Care creates better spaces.\"",
+      sub: "Satu keputusan kecilmu mengundang orang lain untuk melakukan hal yang sama."
+    },
+    negative: {
+      scene: "🗑️🥀❌", sceneText: "Bunga-bunga layu perlahan... taman kehilangan nyawanya.",
+      icon: "🌧️", text: "\"Small habits spread quickly — termasuk yang buruk.\"",
+      sub: "Satu sampah menjadi izin untuk seribu sampah berikutnya."
+    },
+    neutral: null
+  },
+  {
+    id: 9,
+    tag: "Gotong Royong",
+    emoji: "🫂",
+    title: "We're Meant to Help Each Other",
+    desc: "Komunitas dimulai dari satu uluran tangan.",
+    colors: ["#fff5f0","#fde8e0"],
+    visual: "🏘️🤲🌻👐",
+    situation: "Tetangga lansiamu tampak kesulitan membawa belanjaan berat sendirian. Kamu sedang terburu-buru ke suatu tempat.",
+    sceneInit: "🏘️",
+    sceneInitText: "Jalan perumahan yang tenang...",
+    choices: [
+      { label: "Pura-pura tidak lihat, aku juga sibuk", type: "negative", emoji: "🏃" },
+      { label: "Tawarkan bantuan sebentar saja", type: "positive", emoji: "🤲" }
+    ],
+    positive: {
+      scene: "🌻🤲🌻", sceneText: "Kehangatan menyebar dari satu tangan ke tangan lainnya.",
+      icon: "🌸", text: "\"Komunitas yang hangat dibangun dari momen-momen kecil seperti ini.\"",
+      sub: "Dua menit bantuanmu bisa menjadi kenangan yang menghangatkan hari seseorang."
+    },
+    negative: {
+      scene: "🏃❄️", sceneText: "Individualisme tumbuh dalam diam...",
+      icon: "🌧️", text: "\"Masyarakat yang sibuk sendiri perlahan menjadi masyarakat yang kesepian.\"",
+      sub: "Ketika kita berhenti peduli pada sekitar, kita kehilangan apa yang membuat kita manusia."
+    },
+    neutral: null
+  }
+];
+
+// =========================================
+// STATE
+// =========================================
+let completedCards = new Set();
+let moodScore = 0; // positive choices increase, negative decrease
+let currentCardId = null;
+let choiceMade = false;
+
+// =========================================
+// PARTICLES
+// =========================================
+const canvas = document.getElementById('particles');
+const ctx = canvas.getContext('2d');
+let particles = [];
+
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+
+function createParticle() {
+  return {
+    x: Math.random() * canvas.width,
+    y: canvas.height + 20,
+    size: Math.random() * 4 + 1,
+    speedY: Math.random() * 1.5 + 0.5,
+    speedX: (Math.random() - 0.5) * 0.5,
+    opacity: Math.random() * 0.6 + 0.2,
+    hue: Math.random() * 30 - 10 // slight hue variation around pink
+  };
+}
+
+function getParticleCount() {
+  const base = 25;
+  const moodBonus = Math.max(0, moodScore) * 3;
+  const moodPenalty = Math.max(0, -moodScore) * 2;
+  return Math.max(5, base + moodBonus - moodPenalty);
+}
+
+function animateParticles() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  const target = getParticleCount();
+  while (particles.length < target) particles.push(createParticle());
+  particles = particles.filter(p => p.y > -20);
+  particles.forEach(p => {
+    p.y -= p.speedY;
+    p.x += p.speedX;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+    ctx.fillStyle = `hsla(340, ${70 + p.hue}%, 80%, ${p.opacity})`;
+    ctx.fill();
+  });
+  requestAnimationFrame(animateParticles);
+}
+
+// =========================================
+// MOOD SYSTEM
+// =========================================
+function updateMood(type) {
+  if (type === 'positive') moodScore++;
+  else if (type === 'negative') moodScore--;
+  document.body.classList.remove('positive-mood','negative-mood');
+  if (moodScore >= 3) document.body.classList.add('positive-mood');
+  else if (moodScore <= -2) document.body.classList.add('negative-mood');
+  // Blob opacity
+  const blobs = document.querySelectorAll('.blob');
+  const opacity = Math.max(0.15, 0.35 + moodScore * 0.03);
+  blobs.forEach(b => b.style.opacity = opacity);
+}
+
+// =========================================
+// PROGRESS
+// =========================================
+function updateProgress() {
+  const n = completedCards.size;
+  document.getElementById('progress-num').textContent = n;
+  document.getElementById('progress-fill').style.width = (n / 10 * 100) + '%';
+  document.getElementById('progress-indicator').classList.add('visible');
+  // Mark card
+  const card = document.querySelector(`.card[data-id="${currentCardId}"]`);
+  if (card) card.classList.add('completed');
+  if (n === 10) revealEnding();
+}
+
+// =========================================
+// ENDING
+// =========================================
+function revealEnding() {
+  const ending = document.getElementById('ending');
+  ending.classList.add('revealed');
+  // Animate bars after reveal
+  setTimeout(() => {
+    document.querySelectorAll('.value-bar').forEach(bar => {
+      bar.style.width = bar.dataset.target + '%';
+    });
+    // Big mood boost visually
+    document.body.classList.add('positive-mood');
+  }, 800);
+  setTimeout(() => {
+    ending.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 600);
+}
+
+// =========================================
+// RENDER CARDS
+// =========================================
+function renderCards() {
+  const grid = document.getElementById('cards-grid');
+  CARDS.forEach((c, i) => {
+    const heights = ['aspect-4-3','aspect-3-4','aspect-1-1','aspect-4-3','aspect-3-4','aspect-4-3','aspect-1-1','aspect-3-4','aspect-4-3','aspect-1-1'];
+    const wrap = document.createElement('div');
+    wrap.className = 'card-wrap';
+
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.dataset.id = i;
+    card.style.animationDelay = `${i * 0.1}s`;
+
+    const aspectMap = [75, 120, 90, 100, 110, 80, 95, 115, 85, 105];
+    const visH = aspectMap[i];
+
+    card.innerHTML = `
+      <div class="card-visual" style="height:${visH}px; background:linear-gradient(135deg,${c.colors[0]},${c.colors[1]});">
+        <div class="card-visual-bg"></div>
+        <div class="card-emoji" style="font-size:2.5rem;">${c.emoji}</div>
+      </div>
+      <div class="card-body">
+        <div class="card-tag">${c.tag}</div>
+        <h3 class="card-title">${c.title}</h3>
+        <p class="card-desc">${c.desc}</p>
+        <div class="card-cta">Explore story <span class="card-cta-arrow">→</span></div>
+      </div>
+    `;
+    card.addEventListener('click', () => openModal(i));
+    wrap.appendChild(card);
+    grid.appendChild(wrap);
+  });
+}
+
+// =========================================
+// MODAL
+// =========================================
+function openModal(id) {
+  currentCardId = id;
+  choiceMade = false;
+  const c = CARDS[id];
+
+  document.getElementById('m-emoji').textContent = c.emoji;
+  document.getElementById('m-tag').textContent = c.tag;
+  document.getElementById('m-title').textContent = c.title;
+  document.getElementById('m-scene-visual').textContent = c.sceneInit;
+  document.getElementById('m-scene-text').textContent = c.sceneInitText;
+  document.getElementById('m-situation').textContent = c.situation;
+
+  // Scene bg
+  const scene = document.getElementById('m-scene');
+  scene.style.background = `linear-gradient(135deg, ${c.colors[0]}, ${c.colors[1]})`;
+
+  // Build choices
+  const choicesEl = document.getElementById('m-choices');
+  choicesEl.innerHTML = '';
+  c.choices.forEach(ch => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.innerHTML = `<span>${ch.emoji}</span> ${ch.label}`;
+    btn.addEventListener('click', () => handleChoice(ch, c));
+    choicesEl.appendChild(btn);
+  });
+
+  // Reset
+  const fb = document.getElementById('m-feedback');
+  fb.className = 'feedback-box';
+  document.getElementById('modal-next').classList.remove('show');
+
+  document.getElementById('modal-overlay').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function handleChoice(choice, card) {
+  if (choiceMade) return;
+  choiceMade = true;
+
+  // Disable all buttons
+  document.querySelectorAll('.choice-btn').forEach(b => {
+    b.style.opacity = '0.5'; b.style.pointerEvents = 'none';
+  });
+
+  // Determine response
+  let resp;
+  if (choice.type === 'positive') resp = card.positive;
+  else if (choice.type === 'negative') resp = card.negative;
+  else resp = card.neutral || card.negative;
+
+  // Update scene
+  const sceneVisual = document.getElementById('m-scene-visual');
+  const sceneText = document.getElementById('m-scene-text');
+  const scene = document.getElementById('m-scene');
+
+  sceneVisual.style.transform = 'scale(0)';
+  setTimeout(() => {
+    sceneVisual.textContent = resp.scene;
+    sceneVisual.style.transform = 'scale(1)';
+    sceneText.textContent = resp.sceneText;
+  }, 300);
+
+  if (choice.type === 'negative') {
+    scene.style.background = 'linear-gradient(135deg, #f5f0f2, #ede8ea)';
+  } else if (choice.type === 'positive') {
+    scene.style.background = `linear-gradient(135deg, ${card.colors[0]}, ${card.colors[1]})`;
+  }
+
+  // Mood
+  updateMood(choice.type);
+
+  // Feedback
+  const fb = document.getElementById('m-feedback');
+  document.getElementById('m-fb-icon').textContent = resp.icon;
+  document.getElementById('m-fb-text').textContent = resp.text;
+  document.getElementById('m-fb-sub').textContent = resp.sub;
+  fb.className = 'feedback-box show ' + (choice.type === 'positive' ? 'positive' : 'negative');
+
+  // Next btn
+  document.getElementById('modal-next').classList.add('show');
+  completedCards.add(currentCardId);
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('active');
+  document.body.style.overflow = '';
+  if (completedCards.has(currentCardId)) updateProgress();
+}
+
+// =========================================
+// INIT
+// =========================================
+window.addEventListener('load', () => {
+  resizeCanvas();
+  window.addEventListener('resize', resizeCanvas);
+  animateParticles();
+  renderCards();
+
+  // Loading screen
+  setTimeout(() => {
+    document.getElementById('loading').classList.add('hidden');
+  }, 1800);
+
+  // Modal close
+  document.getElementById('modal-close').addEventListener('click', closeModal);
+  document.getElementById('modal-overlay').addEventListener('click', (e) => {
+    if (e.target === document.getElementById('modal-overlay')) closeModal();
+  });
+  document.getElementById('modal-next').addEventListener('click', closeModal);
+
+  // Keyboard ESC
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeModal();
+  });
+});
+</script>
+</body>
+</html>
